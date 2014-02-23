@@ -1,18 +1,15 @@
 package net.continuumsecurity;
 
-import net.continuumsecurity.model.NessusReply;
-import net.continuumsecurity.model.Policy;
-import net.continuumsecurity.model.Scan;
-import org.glassfish.jersey.client.ClientProperties;
+import net.continuumsecurity.model.*;
 
-import javax.net.ssl.*;
 import javax.security.auth.login.LoginException;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -25,7 +22,7 @@ public class NessusClient {
     static Logger log = Logger.getLogger(NessusClient.class.toString());
 
     public NessusClient(String nessusUrl) {
-        client = createTrustingSSLClient();
+        client = ClientFactory.createInsecureSSLClient();
         target = client.target(nessusUrl);
     }
 
@@ -36,8 +33,8 @@ public class NessusClient {
         form.param("password", password);
         form.param("seq", generateSeqNum());
 
-        NessusReply reply = loginTarget.request(MediaType.APPLICATION_XML_TYPE)
-                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), NessusReply.class);
+        NessusReply reply = sendRequestAndCheckError(loginTarget, form);
+
         if (!"OK".equalsIgnoreCase(reply.getStatus())) throw new LoginException("Error logging in");
         token = reply.getContents().getToken();
         log.info("Login OK.  Token: "+token);
@@ -47,8 +44,8 @@ public class NessusClient {
         WebTarget scanTarget = target.path("/scan/list");
         Form form = prepopulateForm();
 
-        NessusReply reply = scanTarget.request(MediaType.APPLICATION_XML_TYPE)
-                 .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), NessusReply.class);
+        NessusReply reply = sendRequestAndCheckError(scanTarget, form);
+
         for (Scan scan : reply.getContents().getScans().getScan()) {
             if (name.equalsIgnoreCase(scan.getReadableName())) {
                 return scan.getStatus();
@@ -61,20 +58,83 @@ public class NessusClient {
         WebTarget scanTarget = target.path("/policy/list");
         Form form = prepopulateForm();
 
-        NessusReply reply = scanTarget.request(MediaType.APPLICATION_XML_TYPE)
-                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), NessusReply.class);
+        NessusReply reply = sendRequestAndCheckError(scanTarget, form);
         for (Policy policy : reply.getContents().getPolicies()) {
             if (name.equalsIgnoreCase(policy.getPolicyName())) return policy.getPolicyID();
         }
         throw new PolicyNotFoundException("No policy with name: "+name);
     }
 
-    public String newScan(String targets) {
-        
+    public String newScan(String scanName, String policyName, String targets) {
+    	//first get the policy ID for the name
+    	int policyId = getPolicyIDFromName(policyName);
+    	
+    	WebTarget scanTarget = target.path("/scan/new");
+    	Form form = prepopulateForm();
+        form.param("scan_name",scanName);
+        form.param("target",targets);
+        form.param("policy_id", Integer.toString(policyId));
+
+        NessusReply reply = sendRequestAndCheckError(scanTarget, form);
+        return reply.getContents().getScan().getUuid();
+    }
+
+    public List<Host> getHostsFromReport(String uuid) {
+        WebTarget reportTarget = target.path("/report/hosts");
+        Form form = prepopulateForm();
+        form.param("report",uuid);
+        //String reply = reportTarget.request(MediaType.APPLICATION_XML_TYPE)
+        //        .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
+
+        NessusReply reply = sendRequestAndCheckError(reportTarget,form);
+        return reply.getContents().getHost();
+    }
+
+    public List<Port> getPortsFromHost(String uuid,String hostname)  {
+        List<Host> hosts = getHostsFromReport(uuid);
+
+        for (Host host : hosts) {
+            if (hostname.equalsIgnoreCase(host.getHostname())) {
+                WebTarget reportTarget = target.path("/report/ports");
+                Form form = prepopulateForm();
+                form.param("report",uuid);
+                form.param("hostname",hostname);
+                NessusReply reply = sendRequestAndCheckError(reportTarget,form);
+                return reply.getContents().getPort();
+            }
+        }
+        throw new HostNotFoundException("Hostname: "+hostname+" not found in report: "+uuid);
+    }
+
+    public List<ReportItem> getFindingsFromPort(String uuid, String host, int port, String protocol) {
+        WebTarget reportTarget = target.path("/report/details");
+
+        Form form = prepopulateForm();
+        form.param("report", uuid);
+        form.param("hostname",host);
+        form.param("port",Integer.toString(port));
+        form.param("protocol",protocol);
+
+        System.out.println(getStringResponse(reportTarget,form));
+        NessusReply reply = sendRequestAndCheckError(reportTarget,form);
+        return reply.getContents().getReportItem();
     }
 
     private String generateSeqNum() {
         return "29823987434";
+    }
+
+    private NessusReply sendRequestAndCheckError(WebTarget target, Form form) {
+        NessusReply reply = target.request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), NessusReply.class);
+        if (!"OK".equalsIgnoreCase(reply.getStatus())) throw new NessusException("Error: Got status: "+reply.getStatus()+" for request to: "+target.getUri());
+        return reply;
+    }
+
+    private String getStringResponse(WebTarget target, Form form) {
+        return target.request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), String.class);
+
     }
 
     private Form prepopulateForm() {
@@ -84,49 +144,5 @@ public class NessusClient {
         return form;
     }
 
-    private Client createTrustingSSLClient() {
-        TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
 
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    @Override
-                    public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
-
-        HttpsURLConnection.setDefaultHostnameVerifier(
-                new javax.net.ssl.HostnameVerifier() {
-
-                    public boolean verify(String hostname,
-                                          javax.net.ssl.SSLSession sslSession) {
-                        if (hostname.equals("localhost")) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-
-        // Install the all-trusting trust manager
-        SSLContext sc = null;
-        try {
-            sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return ClientBuilder.newBuilder().sslContext(sc).property(ClientProperties.PROXY_URI, "http://localhost:8888").build();
-    }
 }
