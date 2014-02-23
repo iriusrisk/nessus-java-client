@@ -1,6 +1,4 @@
-package net.continuumsecurity.model;
-
-import net.continuumsecurity.model.Contents;
+package net.continuumsecurity.model.jaxrs;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

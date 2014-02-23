@@ -1,4 +1,4 @@
-package net.continuumsecurity.model;
+package net.continuumsecurity.model.jaxrs;
 
 /**
  * Created by stephen on 22/02/2014.
