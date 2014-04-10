@@ -1,8 +1,7 @@
 nessus-java-client
 ==================
 
-A minimal Java client for the Nessus XML RPC interface
-
+A Java client to the Nessus scanner's XML RPC interface</h2>
 The API is divided into a ScanClient and a ReportClient which both extend BaseClient.
 
 Install
