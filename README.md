@@ -15,7 +15,7 @@ Usage
 ScanClient scan = new ScanClient("https://nessusurl");
 scan.login("username","password");
 String scanID = scan.newScan("myScanName","myExistingPolicyName","127.0.0.1,someotherhost");
-while (scanClient.isScanRunning("myScanName")) {
+while (scan.isScanRunning("myScanName")) {
      try {
         Thread.sleep(2000);
      } catch (InterruptedException e) {
