@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
@@ -61,7 +60,9 @@ public class ReportClientTest {
     @Test
     public void testGetIssuesByPluginId() throws LoginException {
         client.login(user,password);
-        Map<Integer,Issue> issues = client.getIssuesByPluginId(scanUuid);
+        Map<Integer,Issue> issues = client.getAllIssuesSortedByPluginId(scanUuid);
         assertThat(issues.get(pluginID).getSynopsis(), equalTo("An SSH server is listening on this port."));
     }
+
+
 }

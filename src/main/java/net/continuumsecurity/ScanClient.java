@@ -53,6 +53,15 @@ public class ScanClient extends BaseClient {
         return reply.getContents().getScan().getUuid();
     }
 
+    public boolean isScanRunning(String scanName) {
+        try {
+            getScanStatus(scanName);
+            return true;
+        } catch (ScanNotFoundException e) {
+            return false;
+        }
+    }
+
 
 
 

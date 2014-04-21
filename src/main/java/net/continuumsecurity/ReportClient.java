@@ -62,7 +62,7 @@ public class ReportClient extends BaseClient {
         return reply.getContents().getReportItem();
     }
 
-    public Map<Integer,Issue> getIssuesByPluginId(String uuid) {
+    public Map<Integer,Issue> getAllIssuesSortedByPluginId(String uuid) {
         Map<Integer,Issue> issues = new HashMap();
         for (Host host : getHostsFromReport(uuid)) {
             for (Port port : getPortsFromHost(uuid,host.getHostname())) {

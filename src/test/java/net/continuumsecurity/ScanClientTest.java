@@ -12,6 +12,7 @@ import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
@@ -25,6 +26,7 @@ public class ScanClientTest {
     String user = "continuum";
     String password = "continuum";
     String policyName = "test";
+    String scanName = "testScan";
     String scanUuid = "e2e44ca3-7a0e-f6f8-73fd-04b127ef3f18f82ed1c65a88a7f8";
     String hostname = "127.0.0.1";
     int port = 22;
@@ -58,5 +60,19 @@ public class ScanClientTest {
         assertNotEquals(0,id);
     }
 
+    @Test
+    public void testIsScanRunning() throws LoginException {
+        client.login(user,password);
+        String scanId = client.newScan(scanName,policyName,hostname);
+        boolean status = client.isScanRunning(scanName);
+        assertThat(status,is(true));
+        try {
+            Thread.sleep(60*1*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        status = client.isScanRunning(scanName);
+        assertThat(status,is(false));
+    }
 
 }

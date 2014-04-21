@@ -31,11 +31,18 @@ public class BaseClient {
         form.param("password", password);
         form.param("seq", generateSeqNum());
 
-        NessusReply reply = sendRequestAndCheckError(loginTarget, form);
+        NessusReply reply = loginTarget.request(MediaType.APPLICATION_XML_TYPE)
+                .post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE), NessusReply.class);
 
         if (!"OK".equalsIgnoreCase(reply.getStatus())) throw new LoginException("Error logging in");
         token = reply.getContents().getToken();
         log.info("Login OK.  Token: "+token);
+    }
+
+    public void logout() {
+        WebTarget logoutTarget = target.path("/logout");
+        Form form = prepopulateForm();
+        sendRequestAndCheckError(logoutTarget,form);
     }
 
     protected String generateSeqNum() {

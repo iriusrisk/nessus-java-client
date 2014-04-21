@@ -97,4 +97,13 @@ public class Issue {
     public String getSynopsis() {
         return synopsis;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("ID: ").append(pluginID).append("\n")
+                    .append("Name: ").append(pluginName).append("\n")
+                .append("Description: ").append(description).append("\n")
+                .append("Severity: ").append(severity).append("\n").toString();
+
+    }
 }
