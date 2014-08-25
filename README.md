@@ -27,3 +27,7 @@ ReportClient report = new ReportClient("https://nessusurl");
 report.login("username","password");
 Map<Integer,Issue> issues = report.getAllIssuesSortedByPluginId(scanID);
 ```
+
+Reference
+=========
+This library supports a subset of the entire XML RPC interface to Nessus, if you'd like to add other features the full specification can be found [here](http://static.tenable.com/documentation/nessus_5.0_XMLRPC_protocol_guide.pdf)
