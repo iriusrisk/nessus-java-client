@@ -1,4 +1,4 @@
-package net.continuumsecurity.model.jaxrs;
+package net.continuumsecurity.v5.model.jaxrs;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;

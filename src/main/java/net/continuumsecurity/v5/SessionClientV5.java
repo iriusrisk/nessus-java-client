@@ -1,6 +1,9 @@
-package net.continuumsecurity;
+package net.continuumsecurity.v5;
 
-import net.continuumsecurity.model.jaxrs.NessusReply;
+import net.continuumsecurity.ClientFactory;
+import net.continuumsecurity.NessusException;
+import net.continuumsecurity.SessionClient;
+import net.continuumsecurity.v5.model.jaxrs.NessusReply;
 
 import javax.security.auth.login.LoginException;
 import javax.ws.rs.client.Client;
@@ -13,17 +16,18 @@ import java.util.logging.Logger;
 /**
  * Created by stephen on 23/02/2014.
  */
-public class BaseClient {
+public class SessionClientV5 implements SessionClient {
     private Client client;
     WebTarget target;
     String token;
-    static Logger log = Logger.getLogger(ScanClient.class.toString());
+    static Logger log = Logger.getLogger(ScanClientV5.class.toString());
 
-    public BaseClient(String nessusUrl) {
-        client = ClientFactory.createInsecureSSLClient();
+    public SessionClientV5(String nessusUrl, boolean acceptAllHostNames) {
+        client = ClientFactory.createV5Client(acceptAllHostNames);
         target = client.target(nessusUrl);
     }
 
+    @Override
     public void login(String username, String password) throws LoginException {
         WebTarget loginTarget = target.path("/login");
         Form form = new Form();
@@ -39,6 +43,7 @@ public class BaseClient {
         log.info("Login OK.  Token: "+token);
     }
 
+    @Override
     public void logout() {
         WebTarget logoutTarget = target.path("/logout");
         Form form = prepopulateForm();

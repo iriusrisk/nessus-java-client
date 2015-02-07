@@ -1,9 +1,10 @@
 package net.continuumsecurity;
 
-import net.continuumsecurity.model.Issue;
-import net.continuumsecurity.model.jaxrs.Host;
-import net.continuumsecurity.model.jaxrs.Port;
-import net.continuumsecurity.model.jaxrs.ReportItem;
+import net.continuumsecurity.v5.model.Issue;
+import net.continuumsecurity.v5.model.jaxrs.Host;
+import net.continuumsecurity.v5.model.jaxrs.Port;
+import net.continuumsecurity.v5.model.jaxrs.ReportItem;
+import net.continuumsecurity.v5.ReportClientV5;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,8 +20,8 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by stephen on 23/02/2014.
  */
-public class ReportClientTest {
-    ReportClient client;
+public class ReportClientV5Test {
+    ReportClientV5 client;
     String nessusUrl = "https://localhost:8834";
     String user = "continuum";
     String password = "continuum";
@@ -33,7 +34,7 @@ public class ReportClientTest {
 
     @Before
     public void setup() {
-        client = new ReportClient(nessusUrl);
+        client = new ReportClientV5(nessusUrl,true);
     }
     @Test
     public void testGetHostsFromReport() throws LoginException {

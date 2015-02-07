@@ -1,5 +1,6 @@
 package net.continuumsecurity;
 
+import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import org.glassfish.jersey.client.ClientProperties;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -13,7 +14,7 @@ import javax.ws.rs.client.ClientBuilder;
  * Created by stephen on 23/02/2014.
  */
 public class ClientFactory {
-    public static Client createInsecureSSLClient() {
+    public static ClientBuilder createInsecureSSLClient(final boolean acceptAllHostNames) {
         TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
 
@@ -36,6 +37,7 @@ public class ClientFactory {
 
                     public boolean verify(String hostname,
                                           javax.net.ssl.SSLSession sslSession) {
+                        if (acceptAllHostNames) return true;
                         if (hostname.equals("localhost")) {
                             return true;
                         }
@@ -53,6 +55,17 @@ public class ClientFactory {
             e.printStackTrace();
         }
 
-        return ClientBuilder.newBuilder().sslContext(sc).property(ClientProperties.PROXY_URI, "http://localhost:8888").build();
+        return ClientBuilder.newBuilder().sslContext(sc);
+    }
+
+    public static Client createV6Client(final boolean acceptAllHostNames) {
+        Client client = createInsecureSSLClient(acceptAllHostNames).register(JacksonFeatures.class).build();
+        config.property(ApacheClientProperties.PROXY_URI, proxyUrl);
+        Connector connector = new ApacheConnector(config);
+        config.connector(connector);
+    }
+
+    public static Client createV5Client(final boolean acceptAllHostNames) {
+        return createInsecureSSLClient(acceptAllHostNames).build();
     }
 }

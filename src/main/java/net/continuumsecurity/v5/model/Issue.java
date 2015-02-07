@@ -1,4 +1,4 @@
-package net.continuumsecurity.model;
+package net.continuumsecurity.v5.model;
 
 import java.util.List;
 
