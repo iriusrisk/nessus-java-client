@@ -2,6 +2,7 @@ package net.continuumsecurity;
 
 import net.continuumsecurity.v6.ScanClientV6;
 import net.continuumsecurity.v6.SessionClientV6;
+import org.hamcrest.Matchers;
 import org.junit.*;
 
 import javax.security.auth.login.LoginException;
@@ -58,7 +59,16 @@ public class ScanClientV6Test {
     }
 
     @Test
-    public void launchScan() {
-        client.newScan(scanName,policyName,"127.0.0.1");
+    public void testlLaunchScan() throws InterruptedException {
+        String id = client.newScan(scanName,policyName,"127.0.0.1");
+        assertThat(client.getScanStatus(id), Matchers.equalTo("running"));
+        assertThat(client.isScanRunning(id), Matchers.equalTo(true));
+        while (client.isScanRunning(id)) {
+            Thread.sleep(3*1000);
+        }
+        assertThat(client.getScanStatus(id), Matchers.equalTo("completed"));
+
     }
+
+
 }

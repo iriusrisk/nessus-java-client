@@ -1,6 +1,8 @@
 package net.continuumsecurity;
 
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
+import net.continuumsecurity.v5.ScanClientV5;
+import net.continuumsecurity.v6.ScanClientV6;
 import org.glassfish.jersey.client.ClientProperties;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -59,13 +61,19 @@ public class ClientFactory {
     }
 
     public static Client createV6Client(final boolean acceptAllHostNames) {
-        Client client = createInsecureSSLClient(acceptAllHostNames).register(JacksonFeatures.class).build();
-        config.property(ApacheClientProperties.PROXY_URI, proxyUrl);
-        Connector connector = new ApacheConnector(config);
-        config.connector(connector);
+        return createInsecureSSLClient(acceptAllHostNames).register(JacksonFeatures.class).build();
     }
 
     public static Client createV5Client(final boolean acceptAllHostNames) {
         return createInsecureSSLClient(acceptAllHostNames).build();
     }
+
+    public static ScanClient createScanClient(String nessusUrl, int version, boolean acceptAllHostNames) {
+        switch (version) {
+            case 5 : return new ScanClientV5(nessusUrl,acceptAllHostNames);
+            case 6 : return new ScanClientV6(nessusUrl,acceptAllHostNames);
+        }
+        throw new RuntimeException("Only Nessus version 5 and 6 are supported.");
+    }
+
 }

@@ -10,18 +10,18 @@ import java.util.List;
 /**
  * Created by stephen on 07/02/15.
  */
-@JsonIgnoreProperties(value = { "folders","timestamp" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScansV6 {
 
-    private List<ScanV6> scan;
+    private List<ScanV6> scans;
 
-    @XmlElementWrapper(name = "scans")
+    @XmlElement(name = "scans")
     public List<ScanV6> getScans() {
-        return scan;
+        return scans;
     }
 
-    public void setScans(List<ScanV6> scan) {
-        this.scan = scan;
+    public void setScans(List<ScanV6> scans) {
+        this.scans = scans;
     }
 
 }

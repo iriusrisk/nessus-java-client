@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Created by stephen on 07/02/15.
  */
+@XmlRootElement
 public class CreateScanRequest {
     String uuid;
     Settings settings;

@@ -10,5 +10,5 @@ public interface ScanClient {
 
     String newScan(String scanName, String policyName, String targets);
 
-    boolean isScanRunning(String scanName);
+    boolean isScanRunning(String scanId);
 }

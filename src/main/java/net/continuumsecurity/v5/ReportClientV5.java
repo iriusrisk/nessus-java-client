@@ -27,7 +27,6 @@ public class ReportClientV5 extends SessionClientV5 implements ReportClient {
         super(nessusUrl,acceptAllHostNames);
     }
 
-    @Override
     public List<Host> getHostsFromReport(String uuid) {
         WebTarget reportTarget = target.path("/report/hosts");
         Form form = prepopulateForm();
@@ -36,7 +35,6 @@ public class ReportClientV5 extends SessionClientV5 implements ReportClient {
         return reply.getContents().getHost();
     }
 
-    @Override
     public List<Port> getPortsFromHost(String uuid, String hostname)  {
         List<Host> hosts = getHostsFromReport(uuid);
 
@@ -53,7 +51,6 @@ public class ReportClientV5 extends SessionClientV5 implements ReportClient {
         throw new HostNotFoundException("Hostname: "+hostname+" not found in report: "+uuid);
     }
 
-    @Override
     public List<ReportItem> getFindingsFromPort(String uuid, String host, int port, String protocol) {
         WebTarget reportTarget = target.path("/report/details");
 
@@ -67,7 +64,6 @@ public class ReportClientV5 extends SessionClientV5 implements ReportClient {
         return reply.getContents().getReportItem();
     }
 
-    @Override
     public Map<Integer,Issue> getAllIssuesSortedByPluginId(String uuid) {
         Map<Integer,Issue> issues = new HashMap();
         for (Host host : getHostsFromReport(uuid)) {

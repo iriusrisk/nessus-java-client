@@ -18,44 +18,53 @@ public class ScanClientV6 extends SessionClientV6 implements ScanClient {
     }
 
     @Override
-    public String getScanStatus(String name) throws ScanNotFoundException {
+    public String getScanStatus(String id) throws ScanNotFoundException {
         WebTarget scanTarget = target.path("/scans");
-
-        for (ScanV6 scan : getRequest(scanTarget, ScansV6.class).getScans()) {
-            if (name.equalsIgnoreCase(scan.getName())) {
+        int scanId = Integer.parseInt(id);
+        ScansV6 scans = getRequest(scanTarget, ScansV6.class);
+        for (ScanV6 scan : scans.getScans()) {
+            if (scanId == scan.getId()) {
                 return scan.getStatus();
             }
         }
-        throw new ScanNotFoundException("No scan with name: "+name);
+        throw new ScanNotFoundException("No scan with Id: "+id);
     }
 
-    @Override
-    public int getPolicyIDFromName(String name) throws PolicyNotFoundException {
+    private PolicyV6 getPolicyV6ByName(String name) {
         WebTarget scanTarget = target.path("/policies");
         Policies reply = getRequest(scanTarget,Policies.class);
         for (PolicyV6 policy : reply.getPolicies()) {
-            if (name.equalsIgnoreCase(policy.getName())) return policy.getId();
+            if (name.equalsIgnoreCase(policy.getName())) return policy;
         }
         throw new PolicyNotFoundException("No policy with name: "+name);
     }
 
     @Override
-    public String newScan(String scanName, String policyName, String targets) {
-        //first get the policy ID for the name
-        int policyId = getPolicyIDFromName(policyName);
+    public int getPolicyIDFromName(String name) throws PolicyNotFoundException {
+        return getPolicyV6ByName(name).getId();
+    }
 
+    public String getPolicyUUIDFromName(String name) throws PolicyNotFoundException {
+        return getPolicyV6ByName(name).getUuid();
+    }
+
+    @Override
+    public String newScan(String scanName, String policyName, String targets) {
+        PolicyV6 policy = getPolicyV6ByName(policyName);
         WebTarget scanTarget = target.path("scans");
         CreateScanRequest scanCommand = new CreateScanRequest();
-        scanCommand.setUuid(UUID.randomUUID().toString());
+        scanCommand.setUuid(policy.getUuid());
         Settings settings = new Settings();
         settings.setName(scanName);
-        settings.setPolicy_id(policyId);
+        settings.setPolicy_id(policy.getId());
         settings.setText_targets(targets);
         scanCommand.setSettings(settings);
-        ScanResponse response = postRequest(scanTarget,scanCommand,ScanResponse.class);
-        if (response.getUuid() == null || response.getUuid().length() == 0) throw new RuntimeException("Error creating scan: "+response.getError());
-        launchScan(response.getId());
-        return response.getUuid();
+        //String response = postRequest(scanTarget,scanCommand,String.class);
+        ScanResponseWrapper response = postRequest(scanTarget,scanCommand,ScanResponseWrapper.class);
+
+        if (response.getScan() == null || response.getScan().getId() <= 0) throw new RuntimeException("Error creating scan: "+response.getError());
+        launchScan(response.getScan().getId());
+        return Integer.toString(response.getScan().getId()); //Nessus v5 uses the UUID instead of scanId
     }
 
     private void launchScan(int id) {
@@ -65,12 +74,13 @@ public class ScanClientV6 extends SessionClientV6 implements ScanClient {
     }
 
     @Override
-    public boolean isScanRunning(String scanName) {
+    public boolean isScanRunning(String scanId) {
         try {
-            getScanStatus(scanName);
-            return true;
+            if ("completed".equalsIgnoreCase(getScanStatus(scanId))) return false;
+            if ("running".equalsIgnoreCase(getScanStatus(scanId)) || "paused".equalsIgnoreCase(getScanStatus(scanId))) return true;
         } catch (ScanNotFoundException e) {
             return false;
         }
+        return false;
     }
 }
