@@ -1,7 +1,9 @@
 package net.continuumsecurity;
 
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
+import net.continuumsecurity.v5.ReportClientV5;
 import net.continuumsecurity.v5.ScanClientV5;
+import net.continuumsecurity.v6.ReportClientV6;
 import net.continuumsecurity.v6.ScanClientV6;
 import org.glassfish.jersey.client.ClientProperties;
 
@@ -72,6 +74,14 @@ public class ClientFactory {
         switch (version) {
             case 5 : return new ScanClientV5(nessusUrl,acceptAllHostNames);
             case 6 : return new ScanClientV6(nessusUrl,acceptAllHostNames);
+        }
+        throw new RuntimeException("Only Nessus version 5 and 6 are supported.");
+    }
+
+    public static ReportClient createReportClient(String nessusUrl, int version, boolean acceptAllHostNames) {
+        switch (version) {
+            case 5 : return new ReportClientV5(nessusUrl,acceptAllHostNames);
+            case 6 : return new ReportClientV6(nessusUrl,acceptAllHostNames);
         }
         throw new RuntimeException("Only Nessus version 5 and 6 are supported.");
     }
