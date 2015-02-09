@@ -4,9 +4,6 @@ nessus-java-client
 A Java client to the Nessus scanner's REST interface, supports both v5 and v6</h2>
 The API is divided into a ScanClient and a ReportClient.
 
-Install
-=======
-```mvn install -DskipTests```
   
 Usage
 =====
@@ -37,3 +34,11 @@ Reference
 =========
 This library supports a subset of the entire API interface to Nessus, if you'd like to add other features the full specification for v5 can be found [here](http://static.tenable.com/documentation/nessus_5.0_XMLRPC_protocol_guide.pdf)
 Nessus v6 API documentation can be read from the API itself by visiting: https://mynessuslocation:8834/nessus6-api.html
+
+Install
+=======
+```mvn install -DskipTests```
+
+Build jar with all dependencies included
+============
+```mvn clean compile assembly:single -DskipTests=true```

@@ -3,7 +3,7 @@ package net.continuumsecurity;
 /**
  * Created by stephen on 07/02/15.
  */
-public interface ScanClient {
+public interface ScanClient extends SessionClient {
     String getScanStatus(String name) throws ScanNotFoundException;
 
     int getPolicyIDFromName(String name) throws PolicyNotFoundException;

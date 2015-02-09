@@ -7,6 +7,6 @@ import java.util.Map;
 /**
  * Created by stephen on 08/02/15.
  */
-public interface ReportClient {
+public interface ReportClient extends SessionClient {
     Map<Integer,Issue> getAllIssuesSortedByPluginId(String uuid);
 }
