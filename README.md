@@ -38,7 +38,3 @@ Nessus v6 API documentation can be read from the API itself by visiting: https:/
 Install
 =======
 ```mvn install -DskipTests```
-
-Build jar with all dependencies included
-============
-```mvn clean compile assembly:single -DskipTests=true```
