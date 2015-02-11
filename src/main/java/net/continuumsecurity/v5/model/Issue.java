@@ -100,10 +100,14 @@ public class Issue {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("ID: ").append(pluginID).append("\n")
+        StringBuilder sb = new StringBuilder().append("ID: ").append(pluginID).append("\n")
                     .append("Name: ").append(pluginName).append("\n")
                 .append("Description: ").append(description).append("\n")
-                .append("Severity: ").append(severity).append("\n").toString();
-
+                .append("Severity: ").append(severity).append("\n")
+                .append("Hosts:\n");
+        for (String hostname : getHosts()) {
+            sb.append("\t\t"+hostname+"\n");
+        }
+        return sb.toString();
     }
 }
