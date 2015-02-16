@@ -1,5 +1,8 @@
 package net.continuumsecurity.v5.model;
 
+import net.continuumsecurity.v5.model.jaxrs.Host;
+import net.continuumsecurity.v6.model.HostV6;
+
 import java.util.List;
 
 /**
@@ -10,11 +13,18 @@ public class Issue {
     int port;
     int severity;
     String protocol;
-    List<String> hosts;
+    List<HostV6> hostsV6;
+    List<String> hostnames;
     private String description;
     private String solution;
     private String output;
     private String synopsis;
+    private String nessusUrl,scanId;
+
+    public Issue(String nessusUrl, String scanId) {
+        this.nessusUrl = nessusUrl;
+        this.scanId = scanId;
+    }
 
     public String getPluginName() {
         return pluginName;
@@ -58,14 +68,6 @@ public class Issue {
         this.protocol = protocol;
     }
 
-    public List<String> getHosts() {
-        return hosts;
-    }
-
-    public void setHosts(List<String> hosts) {
-        this.hosts = hosts;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }
@@ -98,6 +100,28 @@ public class Issue {
         return synopsis;
     }
 
+    public List<String> getHostnames() {
+        return hostnames;
+    }
+
+    public void setHostnames(List<String> hostnames) {
+        this.hostnames = hostnames;
+    }
+
+    public List<HostV6> getHostsV6() {
+        return hostsV6;
+    }
+
+    public void setHostsV6(List<HostV6> hostsV6) {
+        this.hostsV6 = hostsV6;
+    }
+
+    public String buildV6Url(HostV6 hostV6) {
+        StringBuilder sb = new StringBuilder();
+        return sb.append(nessusUrl+"/nessus6.html#/scans/").append(scanId).append("/hosts/").append(hostV6.getHostId())
+                .append("/vulnerabilities/").append(pluginID).toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder().append("ID: ").append(pluginID).append("\n")
@@ -105,8 +129,15 @@ public class Issue {
                 .append("Description: ").append(description).append("\n")
                 .append("Severity: ").append(severity).append("\n")
                 .append("Hosts:\n");
-        for (String hostname : getHosts()) {
-            sb.append("\t\t"+hostname+"\n");
+        if (hostsV6 != null) {
+            for (HostV6 hostV6 : getHostsV6()) {
+                sb.append("\t\t" + hostV6.getHostname() + "\n");
+                sb.append("\t\tUrl: " + buildV6Url(hostV6) + "\n");
+            }
+        } else {
+            for (String hostname : getHostnames()) {
+                sb.append("\t\t" + hostname + "\n");
+            }
         }
         return sb.toString();
     }

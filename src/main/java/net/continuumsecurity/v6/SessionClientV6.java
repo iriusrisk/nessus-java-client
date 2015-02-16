@@ -27,8 +27,10 @@ public class SessionClientV6 implements SessionClient {
     String token;
     static final String COOKIE_HEADER = "X-Cookie";
     static Logger log = Logger.getLogger(ScanClientV5.class.toString());
+    protected String nessusUrl;
 
     public SessionClientV6(String nessusUrl, boolean acceptAllHostNames) {
+        this.nessusUrl = nessusUrl;
         client = ClientFactory.createV6Client(acceptAllHostNames);
         target = client.target(nessusUrl);
     }

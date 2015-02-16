@@ -57,8 +57,9 @@ public class ReportClientV6Test {
     public void testGetAllIssues() {
         Map<Integer,Issue> issues = client.getAllIssuesSortedByPluginId(scanId);
         Issue issue = issues.get(11219);
-        assertThat(issue.getHosts().get(0), Matchers.equalTo("192.168.0.3"));
-        assertThat(issue.getHosts().get(1), Matchers.equalTo("192.168.0.1"));
+        assertThat(issue.getHostnames().get(0), Matchers.equalTo("192.168.0.3"));
+        assertThat(issue.getHostnames().get(1), Matchers.equalTo("192.168.0.1"));
+        assertThat(issue.buildV6Url(issue.getHostsV6().get(0)), Matchers.equalTo("https://localhost:8834/nessus6.html#/scans/25/hosts/4/vulnerabilities/11219"));
     }
 
 }

@@ -71,8 +71,8 @@ public class ReportClientV5 extends SessionClientV5 implements ReportClient {
                 for (ReportItem item : getFindingsFromPort(uuid,host.getHostname(),port.getPortNum(),port.getProtocol())) {
                     Issue issue = issues.get(item.getPluginID());
                     if (issue == null) {
-                        issue = new Issue();
-                        issue.setHosts(new ArrayList<String>());
+                        issue = new Issue(nessusUrl,uuid);
+                        issue.setHostnames(new ArrayList<String>());
                         issue.setPluginID(item.getPluginID());
                         issue.setPluginName(item.getPluginName());
                         issue.setPort(port.getPortNum());
@@ -84,7 +84,7 @@ public class ReportClientV5 extends SessionClientV5 implements ReportClient {
                         issue.setSynopsis(item.getData().getSynopsis());
                         issues.put(item.getPluginID(),issue);
                     }
-                    issue.getHosts().add(host.getHostname());
+                    issue.getHostnames().add(host.getHostname());
                 }
             }
         }

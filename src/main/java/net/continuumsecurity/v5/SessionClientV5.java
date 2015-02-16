@@ -20,9 +20,11 @@ public class SessionClientV5 implements SessionClient {
     private Client client;
     WebTarget target;
     String token;
+    String nessusUrl;
     static Logger log = Logger.getLogger(ScanClientV5.class.toString());
 
     public SessionClientV5(String nessusUrl, boolean acceptAllHostNames) {
+        this.nessusUrl = nessusUrl;
         client = ClientFactory.createV5Client(acceptAllHostNames);
         target = client.target(nessusUrl);
     }

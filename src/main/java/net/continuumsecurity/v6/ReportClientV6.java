@@ -45,10 +45,11 @@ public class ReportClientV6 extends SessionClientV6 implements ReportClient {
             for (Vulnerability vuln : getVulnerabilities(scanId, host.getHostId())) {
                 Issue issue = issues.get(vuln.getPluginId());
                 if (issue == null) {
-                    issue = vuln.toIssue();
+                    issue = vuln.toIssue(nessusUrl,scanId);
                     issues.put(vuln.getPluginId(), issue);
                 }
-                issue.getHosts().add(host.getHostname());
+                issue.getHostsV6().add(host);
+                issue.getHostnames().add(host.getHostname());
             }
         }
         return issues;
