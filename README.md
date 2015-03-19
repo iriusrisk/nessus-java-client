@@ -1,3 +1,4 @@
+![ContinuumSecurity logo](http://www.continuumsecurity.net/images/logo-500.jpg)
 nessus-java-client
 ==================
 
