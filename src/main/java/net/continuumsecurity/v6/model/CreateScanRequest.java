@@ -8,24 +8,24 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class CreateScanRequest {
-    String uuid;
-    Settings settings;
+	private String		uuid;
+	private Settings	settings;
 
-    @XmlElement
-    public String getUuid() {
-        return uuid;
-    }
+	@XmlElement
+	public String getUuid() {
+		return uuid;
+	}
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 
-    @XmlElement
-    public Settings getSettings() {
-        return settings;
-    }
+	@XmlElement
+	public Settings getSettings() {
+		return settings;
+	}
 
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
+	public void setSettings(Settings settings) {
+		this.settings = settings;
+	}
 }

@@ -7,22 +7,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ScanResponseWrapper {
-    private ScanResponse scan;
-    String error;
+	private ScanResponse	scan;
+	private String			error;
 
-    public String getError() {
-        return error;
-    }
+	public String getError() {
+		return error;
+	}
 
-    public void setError(String error) {
-        this.error = error;
-    }
+	public void setError(String error) {
+		this.error = error;
+	}
 
-    public ScanResponse getScan() {
-        return scan;
-    }
+	public ScanResponse getScan() {
+		return scan;
+	}
 
-    public void setScan(ScanResponse scan) {
-        this.scan = scan;
-    }
+	public void setScan(ScanResponse scan) {
+		this.scan = scan;
+	}
 }
