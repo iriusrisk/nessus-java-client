@@ -1,12 +1,12 @@
 package net.continuumsecurity;
 
-import net.continuumsecurity.v5.model.Issue;
-
 import java.util.Map;
+
+import net.continuumsecurity.v5.model.Issue;
 
 /**
  * Created by stephen on 08/02/15.
  */
 public interface ReportClient extends SessionClient {
-    Map<Integer,Issue> getAllIssuesSortedByPluginId(String uuid);
+	public Map<Integer, Issue> getAllIssuesSortedByPluginId(String uuid);
 }
