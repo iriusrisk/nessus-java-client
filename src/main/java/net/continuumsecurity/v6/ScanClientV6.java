@@ -1,12 +1,19 @@
 package net.continuumsecurity.v6;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
 
 import net.continuumsecurity.PolicyNotFoundException;
 import net.continuumsecurity.ScanClient;
 import net.continuumsecurity.ScanNotFoundException;
 import net.continuumsecurity.v6.model.CreateScanRequest;
+import net.continuumsecurity.v6.model.ExportFormat;
+import net.continuumsecurity.v6.model.ExportScanRequest;
+import net.continuumsecurity.v6.model.ExportV6;
 import net.continuumsecurity.v6.model.Policies;
 import net.continuumsecurity.v6.model.PolicyV6;
 import net.continuumsecurity.v6.model.ScanResponseWrapper;
@@ -75,6 +82,26 @@ public class ScanClientV6 extends SessionClientV6 implements ScanClient {
 		return getRequest(scanTarget, ScansV6.class);
 	}
 
+    public ExportV6 export(int scanId, ExportFormat exportFormat) {
+        WebTarget target = this.target.path("scans").path(Integer.toString(scanId)).path("export");
+        ExportScanRequest exportScanRequest = new ExportScanRequest();
+        exportScanRequest.setFormat(exportFormat.getValue());
+        return postRequest(target, exportScanRequest, ExportV6.class);
+    }
+
+    public File download(int scanId, ExportV6 export, Path outputPath) throws IOException {
+        WebTarget target = this.target.path("scans").path(Integer.toString(scanId)).path("export").path(export.getFile()).path("download");
+        Response response = getRequest(target, Response.class, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        String fileName = extractFileName(response);
+        InputStream inputStream = (InputStream) response.getEntity();
+        File targetFile = Files.createFile(outputPath.resolve(Paths.get(fileName))).toFile();
+        writeDownloadedFile(inputStream, targetFile);
+        return targetFile;
+    }
+    public File download(int scanId, ExportFormat exportFormat, Path outputPath) throws IOException {
+        return download(scanId, export(scanId, exportFormat), outputPath);
+    }
+
 	public void launchScan(int id) {
 		WebTarget scanTarget = target.path("scans").path(Integer.toString(id)).path("launch");
 		Response response = postRequest(scanTarget, "", Response.class);
@@ -93,4 +120,25 @@ public class ScanClientV6 extends SessionClientV6 implements ScanClient {
 		}
 		return false;
 	}
+
+    private void writeDownloadedFile(InputStream inputStream, File targetFile) throws IOException {
+        OutputStream outStream = null;
+        try {
+            outStream = new FileOutputStream(targetFile);
+            byte[] buffer = new byte[8 * 1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+        } finally {
+            if (outStream != null) {
+                outStream.close();
+            }
+        }
+    }
+
+    private String extractFileName(Response response) {
+        String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
+        return contentDisposition.substring(contentDisposition.indexOf("filename=") + "filename=\\".length(), contentDisposition.length() - 1);
+    }
 }

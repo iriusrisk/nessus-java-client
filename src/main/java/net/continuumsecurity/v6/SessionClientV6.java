@@ -3,9 +3,7 @@ package net.continuumsecurity.v6;
 import java.util.logging.Logger;
 
 import javax.security.auth.login.LoginException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,7 +55,11 @@ public class SessionClientV6 implements SessionClient {
 	}
 
 	protected <T> T getRequest(WebTarget target, Class<T> returnType) {
-		T reply = target.request(MediaType.APPLICATION_JSON_TYPE).header(COOKIE_HEADER, "token=" + token).get(returnType);
+		return getRequest(target, returnType, MediaType.APPLICATION_JSON_TYPE);
+	}
+
+	protected <T> T getRequest(WebTarget target, Class<T> returnType, MediaType mediaType) {
+		T reply = target.request(mediaType).header(COOKIE_HEADER, "token=" + token).get(returnType);
 		return reply;
 	}
 }
