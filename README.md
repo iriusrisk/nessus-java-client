@@ -10,7 +10,7 @@ Usage
 =====
 
 ```java
-ScanClient scan = ClientFactory.createScanClient(6,"https://nessusurl",true); // true == accept all hostnames from SSL cert
+ScanClient scan = ClientFactory.createScanClient("https://nessusurl",6,true); // true == accept all hostnames from SSL cert
 scan.login("username","password");
 String scanID = scan.newScan("myScanName","myExistingPolicyName","127.0.0.1,someotherhost");
 while (scan.isScanRunning(scanID)) {
@@ -21,7 +21,7 @@ while (scan.isScanRunning(scanID)) {
      }
 }
 
-ReportClient report = ClientFactory.createReportClient(6,"https://nessusurl",true);
+ReportClient report = ClientFactory.createReportClient("https://nessusurl",6,true);
 report.login("username","password");
 Map<Integer,Issue> issues = report.getAllIssuesSortedByPluginId(scanID);
 ```
