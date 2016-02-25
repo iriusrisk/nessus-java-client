@@ -70,4 +70,9 @@ public class SessionClientV5 implements SessionClient {
 		form.param("token", token);
 		return form;
 	}
+
+	@Override
+	public void setApiKeys(String accessKey, String secretKey) {
+		throw new NessusException("Authentication using APIKeys is currently not supported for Nessusv5");
+	}
 }
