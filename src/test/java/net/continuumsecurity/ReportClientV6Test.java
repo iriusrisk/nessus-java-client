@@ -24,18 +24,15 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by stephen on 08/02/15.
  */
-public class ReportClientV6Test {
+public class ReportClientV6Test implements BaseTest {
     static ReportClientV6 client;
-    static String nessusUrl = "https://localhost:8834";
-    static String user = "continuum";
-    static String password = "continuum";
     String scanId = "25";
 
 
     @BeforeClass
     public static void setup() throws LoginException {
-        client = new ReportClientV6(nessusUrl, true);
-        client.login(user, password);
+        client = new ReportClientV6(NESSUS_URL, true);
+        client.login(USER, PASSWORD);
     }
 
     @Test

@@ -56,6 +56,16 @@ public class ScanClientV6Test implements BaseTest {
         }
     }
 
+    @Test
+    public void testGetPolicyIdWithAPIKey() throws LoginException {
+        // Set the API Keys
+        client.setApiKeys(ACCESS_KEY, SECRET_KEY);
+        testGetPolicyIdFromName();
+
+        // use use/password again
+        client.login(USER, PASSWORD);
+    }
+
     @Test(expected=ScanNotFoundException.class)
     public void testGetScanStatusForInValidName() throws LoginException {
         client.getScanStatus("12312412");
