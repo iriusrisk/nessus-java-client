@@ -20,8 +20,11 @@ public class SessionClientV6 implements SessionClient {
 	protected WebTarget			target;
 	private String				token;
 	private static final String	COOKIE_HEADER	= "X-Cookie";
+	private static final String	APIKEY_HEADER	= "X-ApiKeys";
 	private static Logger		log				= Logger.getLogger(ScanClientV6.class.toString());
 	protected String			nessusUrl;
+	private String authHeader;
+	private String authParam;
 
 	public SessionClientV6(String nessusUrl, boolean acceptAllHostNames) {
 		this.nessusUrl = nessusUrl;
@@ -38,20 +41,26 @@ public class SessionClientV6 implements SessionClient {
 		token = reply.getToken();
 		if(token == null || token.length() == 0)
 			throw new LoginException("Error logging in");
+		authHeader = COOKIE_HEADER;
+		authParam = "token=" + token;
 		log.info("Login OK.  Token: " + token);
+	}
+
+	public void setApiKeys(final String accessKey, final String secretKey) {
+		authHeader = APIKEY_HEADER;
+		authParam = "accessKey=" + accessKey + "; secretKey=" + secretKey;
 	}
 
 	public void logout() {
 		WebTarget logoutTarget = target.path("/session");
-		Response response = logoutTarget.request(MediaType.APPLICATION_JSON_TYPE).header(COOKIE_HEADER, "token=" + token).delete(Response.class);
+		Response response = logoutTarget.request(MediaType.APPLICATION_JSON_TYPE).header(authHeader, authParam).delete(Response.class);
 		if(response.getStatus() != 200)
 			throw new RuntimeException("Error logging out. Received status code: " + response.getStatus() + " " + response.getStatusInfo().getReasonPhrase());
 		log.info("Logout: " + response.getStatusInfo().getReasonPhrase());
 	}
 
 	protected <T> T postRequest(WebTarget target, Object object, Class<T> returnType) {
-		T reply = target.request(MediaType.APPLICATION_JSON_TYPE).header(COOKIE_HEADER, "token=" + token).post(Entity.entity(object, MediaType.APPLICATION_JSON_TYPE), returnType);
-		return reply;
+		return target.request(MediaType.APPLICATION_JSON_TYPE).header(authHeader, authParam).post(Entity.entity(object, MediaType.APPLICATION_JSON_TYPE), returnType);
 	}
 
 	protected <T> T getRequest(WebTarget target, Class<T> returnType) {
@@ -59,7 +68,6 @@ public class SessionClientV6 implements SessionClient {
 	}
 
 	protected <T> T getRequest(WebTarget target, Class<T> returnType, MediaType mediaType) {
-		T reply = target.request(mediaType).header(COOKIE_HEADER, "token=" + token).get(returnType);
-		return reply;
+		return target.request(mediaType).header(authHeader, authParam).get(returnType);
 	}
 }

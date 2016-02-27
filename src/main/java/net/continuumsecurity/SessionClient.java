@@ -9,4 +9,7 @@ public interface SessionClient {
 	public void login(String username, String password) throws LoginException;
 
 	public void logout();
+
+	public void setApiKeys(String accessKey, String secretKey);
+
 }

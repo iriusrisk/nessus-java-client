@@ -16,16 +16,12 @@ import javax.security.auth.login.LoginException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * Created by stephen on 07/02/15.
  */
-public class ScanClientV6Test {
+public class ScanClientV6Test implements BaseTest {
     static ScanClientV6 client;
-    static String nessusUrl = "https://localhost:8834";
-    static String user = "continuum";
-    static String password = "continuum";
     String policyName = "basic";
     String scanName = "testScan";
     String hostname = "127.0.0.1";
@@ -36,8 +32,8 @@ public class ScanClientV6Test {
 
     @BeforeClass
     public static void setup() throws LoginException {
-        client = new ScanClientV6(nessusUrl,true);
-        client.login(user,password);
+        client = new ScanClientV6(NESSUS_URL,true);
+        client.login(USER, PASSWORD);
     }
 
     @AfterClass
@@ -45,15 +41,34 @@ public class ScanClientV6Test {
         client.logout();
     }
 
+    @Before
+    public void checkPrerequisites() throws InterruptedException {
+        try {
+            client.getScanIDFromName(scanName);
+        } catch (ScanNotFoundException e) {
+            String id = client.newScan(scanName,policyName,"127.0.0.1");
+            assertThat(client.getScanStatus(id), Matchers.equalTo("running"));
+            assertThat(client.isScanRunning(id), Matchers.equalTo(true));
+            while (client.isScanRunning(id)) {
+                Thread.sleep(3*1000);
+            }
+            assertThat(client.getScanStatus(id), Matchers.equalTo("completed"));
+        }
+    }
+
     @Test
-    public void testGetScanStatusForValidName() throws LoginException {
-        String status = client.getScanStatus(scanName);
-        assertThat(status,equalTo("paused"));
+    public void testGetPolicyIdWithAPIKey() throws LoginException {
+        // Set the API Keys
+        client.setApiKeys(ACCESS_KEY, SECRET_KEY);
+        testGetPolicyIdFromName();
+
+        // use use/password again
+        client.login(USER, PASSWORD);
     }
 
     @Test(expected=ScanNotFoundException.class)
     public void testGetScanStatusForInValidName() throws LoginException {
-        client.getScanStatus("boogywoogy");
+        client.getScanStatus("12312412");
     }
 
     @Test
@@ -68,19 +83,20 @@ public class ScanClientV6Test {
     }
 
     @Test
-    public void testlLaunchScan() throws InterruptedException {
-        String id = client.newScan(scanName,policyName,"127.0.0.1");
-        assertThat(client.getScanStatus(id), Matchers.equalTo("running"));
-        assertThat(client.isScanRunning(id), Matchers.equalTo(true));
-        while (client.isScanRunning(id)) {
+    public void launchScan() throws InterruptedException {
+        int id = client.getScanIDFromName(scanName);
+        client.launchScan(id);
+        assertThat(client.getScanStatus(Integer.toString(id)), Matchers.equalTo("running"));
+        assertThat(client.isScanRunning(Integer.toString(id)), Matchers.equalTo(true));
+        while (client.isScanRunning(Integer.toString(id))) {
             Thread.sleep(3*1000);
         }
-        assertThat(client.getScanStatus(id), Matchers.equalTo("completed"));
-
+        assertThat(client.getScanStatus(Integer.toString(id)), Matchers.equalTo("completed"));
     }
 
     @Test
     public void testExportScanReport() throws LoginException, IOException {
+
         // Retrieve last scan produced
         ScansV6 scansV6 = client.listScans();
         ScanV6 scanV6 = scansV6.getScans().get(0);
@@ -102,7 +118,7 @@ public class ScanClientV6Test {
         // Download exported file
         File downloaded = client.download(scanId, ExportFormat.CSV, testFolder.newFolder().toPath());
         String result = fileToString(downloaded);
-        assertThat(result, Matchers.containsString("Nessus version"));
+        assertThat(result, Matchers.containsString("The remote host is up"));
     }
 
     @Test

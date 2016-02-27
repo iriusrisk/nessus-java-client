@@ -3,6 +3,7 @@ package net.continuumsecurity.v5;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Form;
 
+import net.continuumsecurity.NessusException;
 import net.continuumsecurity.PolicyNotFoundException;
 import net.continuumsecurity.ScanClient;
 import net.continuumsecurity.ScanNotFoundException;
@@ -61,4 +62,15 @@ public class ScanClientV5 extends SessionClientV5 implements ScanClient {
 			return false;
 		}
 	}
+
+	@Override
+	public int getScanIDFromName(String name) {
+		throw new NessusException("Not supported");
+	}
+
+	@Override
+	public void launchScan(int id) {
+		throw new NessusException("Not supported");
+	}
+
 }
