@@ -1,6 +1,7 @@
 <img src="https://www.continuumsecurity.net/wp-content/uploads/2016/10/continuum-logo.png" width="400"/>
-nessus-java-client
-==================
+
+Nessus Java API Client
+======================
 
 A Java client to the Nessus scanner's REST interface, supports both v5 and v6</h2>
 The API is divided into a ScanClient and a ReportClient.
