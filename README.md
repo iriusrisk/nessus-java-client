@@ -1,4 +1,4 @@
-![ContinuumSecurity logo](https://www.continuumsecurity.net/wp-content/uploads/2016/10/continuum-logo.png width="400")
+<img src="https://www.continuumsecurity.net/wp-content/uploads/2016/10/continuum-logo.png" width="400"/>
 nessus-java-client
 ==================
 
